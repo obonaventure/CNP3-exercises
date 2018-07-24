@@ -1,0 +1,68 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import os
+import tempfile
+import subprocess
+import time
+
+def executeProcess(args, stdinString="", as_root=False):
+    if not isinstance(args, list):
+        args = [args]
+
+    stdin = tempfile.TemporaryFile()
+    stdin.write(stdinString.encode('utf-8'))
+    stdin.seek(0)
+
+    stdout = tempfile.TemporaryFile()
+    stderr = tempfile.TemporaryFile()
+    if as_root:
+        p = subprocess.Popen(args, stdin=stdin, stdout=stdout, stderr=stderr)
+    else:
+        self.setExecutable(args[0])
+        p = subprocess.Popen(args, preexec_fn=self.setlimits, stdin=stdin, stdout=stdout, stderr=stderr)
+    p.wait()
+    stdout.seek(0)
+    stderr.seek(0)
+    return stdout.read(), stderr.read()
+
+#start the ssh server
+# generate the host keys
+executeProcess(["/usr/bin/ssh-keygen", "-A"], as_root=True)
+
+# remove /run/nologin if it exists
+if os.path.exists("/run/nologin"):
+    os.unlink("/run/nologin")
+
+# Start the ssh server
+executeProcess(["/usr/sbin/sshd", "-p", "20002", "-o", "PermitRootLogin=no", "-o", "PasswordAuthentication=yes",
+                                 "-o", "StrictModes=no", "-o", "AllowUsers=worker"], as_root=True)
+
+#self._loop.call_soon_threadsafe(asyncio.ensure_future, self.send_intern_message({"type": "ssh_key", "ssh_key": password}))
+
+# Wait until someone connects to the server
+connected_workers = 0
+attempts = 0
+while connected_workers == 0 and attempts < 120:
+    time.sleep(1)
+    stdout, stderr = executeProcess(["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"], as_root=True)
+    connected_workers = int(stdout)
+    attempts += 1
+
+# If someone is connected, wait until no one remains
+if connected_workers != 0:
+    attempts = 0
+    while connected_workers != 0 and attempts < 60*30:
+        time.sleep(1)
+        stdout, stderr = executeProcess(["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"], as_root=True)
+        connected_workers = int(stdout)
+        attempts += 1
+    print("success")
+    exit(0)
+else:
+    print("failed")
+    exit(0)
+

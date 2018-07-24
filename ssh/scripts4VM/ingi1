@@ -1,0 +1,41 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import os
+import tempfile
+import subprocess
+import time
+
+def executeProcess(args, stdinString="", as_root=False):
+    if not isinstance(args, list):
+        args = [args]
+
+    stdin = tempfile.TemporaryFile()
+    stdin.write(stdinString.encode('utf-8'))
+    stdin.seek(0)
+
+    stdout = tempfile.TemporaryFile()
+    stderr = tempfile.TemporaryFile()
+    if as_root:
+        p = subprocess.Popen(args, stdin=stdin, stdout=stdout, stderr=stderr)
+    else:
+        self.setExecutable(args[0])
+        p = subprocess.Popen(args, preexec_fn=self.setlimits, stdin=stdin, stdout=stdout, stderr=stderr)
+    p.wait()
+    stdout.seek(0)
+    stderr.seek(0)
+    return stdout.read(), stderr.read()
+
+#start the ssh server
+# generate a password for the worker user
+password, _ = executeProcess(["/usr/bin/openssl", "rand", "-base64", "10"], as_root=True)
+password = password.decode('utf8').strip()
+executeProcess(["/usr/bin/bash", "-c", "echo 'worker:%s' | chpasswd" % password], as_root=True)
+
+print(password)
+
+exit(0)
+
