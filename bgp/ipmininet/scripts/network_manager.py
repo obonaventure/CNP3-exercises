@@ -1,6 +1,7 @@
 import sys
 import os
 import ipaddr
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../ipmininet'))
 
@@ -77,6 +78,14 @@ class ASTopo(IPTopo):
             error("Invalid prefixes: " + prefixes)
 
 
+def ordered(obj):
+    if isinstance(obj, dict):
+        return sorted((k, ordered(v)) for k, v in obj.items())
+    if isinstance(obj, list):
+        return sorted(ordered(x) for x in obj)
+    else:
+        return obj
+
 class NetworkManager:
 
     def __init__(self, *args, **kwargs):
@@ -105,21 +114,17 @@ class NetworkManager:
         self.net.stop()
         cleanup()
 
+    def get_converged_ribs_per_as(self):
+        return self._get_converged(self.get_all_ribs_per_as)
+
+    def get_converged_ribs_per_router(self):
+        return self._get_converged(self.get_all_ribs_per_router)
+
     def get_all_ribs_per_router(self):
-        if not self.net.is_running:
-            error("The network is not running.")
-        ribs = {}
-        for r in self.net.routers:
-            ribs[r.name] = self.get_rib(r)
-        return ribs
+        return self._get_all_ribs(lambda r: r.name)
 
     def get_all_ribs_per_as(self):  
-        if not self.net.is_running:
-            error("The network is not running.")
-        ribs = {}
-        for r in self.net.routers:
-            ribs['as'+str(r.asn)] = self.get_rib(r)
-        return ribs
+        return self._get_all_ribs(lambda r: 'as'+str(r.asn))
 
     def get_rib(self, node):
         if not self.net.is_running:
@@ -160,3 +165,20 @@ class NetworkManager:
             else:
                 rib[dest]['secondary'].append(','.join(param[5+m:]))
         return rib
+
+    def _get_converged(self, f):
+        old = f()
+        new = ""
+        while ordered(new) != ordered(old):
+            time.sleep(3)
+            old = new
+            new = f()
+        return new
+
+    def _get_all_ribs(self, f):
+        if not self.net.is_running:
+            error("The network is not running.")
+        ribs = {}
+        for r in self.net.routers:
+            ribs[f(r)] = self.get_rib(r)
+        return ribs
