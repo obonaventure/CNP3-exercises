@@ -1,0 +1,24 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+#
+# Tool to import answer from standard input to the template files given in arguments
+
+if [[ $# -lt 1 ]]; then
+    echo "Illegal number of parameters"
+    exit 255
+fi
+
+SSH_EXIT_STATUS=255
+while [[ $SSH_EXIT_STATUS -eq 255 ]];do
+    ssh -p 20002 -i /add/ssh/id_rsa root@localhost 'echo test' 2> /dev/null
+    SSH_EXIT_STATUS=$?
+
+    if [[ $SSH_EXIT_STATUS -ne 255 ]]; then
+        for f in "$@"; do
+            rsync -avz -e 'ssh -p 20002 -i /add/ssh/id_rsa' $f root@localhost:/root/
+        done
+    fi
+done

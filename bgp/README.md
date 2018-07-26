@@ -9,8 +9,10 @@ https://uclouvain-my.sharepoint.com/:f:/g/personal/silardinois_oasis_uclouvain_b
 In the `ipmininet` folder you will find the scripts used to create and control
 an ipmininet virtual network, along with an example of use ([bgp.py](ipmininet/bgp.py)).
 
-In the `vm` folder you will find some necessary files for the VM to work 
-properly, such as the ssh keys or some scripts.
+In the `inginious` folder you will find all the necessary file to properly
+build the INGInious docker container. As we need to launch qemu at the
+container startup, we have to modify the INGInious python script from
+the base container to execute qemu at startup.
 
 ## The VM
 
