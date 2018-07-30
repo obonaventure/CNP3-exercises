@@ -22,16 +22,23 @@ def error(msg):
     exit(1)
 
 
-class ASTopo(IPTopo):
+class EBGPTopo(IPTopo):
 
     def build_topo(self):
-        super(ASTopo, self).build()
+        """Replace the build method"""
+        super(EBGPTopo, self).build()
 
     def build(self, *args, **kwargs):
         """Do not use this method, it is only needed for compatibility"""
         return
 
     def add_AS(self, asn, prefixes):
+        """Add an AS in the topology, consisting of only one router.
+
+        Returns the added AS, usefull to establish peering between ASes.
+
+        :param asn: AS number
+        :param prefixes: A tuple of the prefixes anounced by the AS"""
         try:
             n = int(asn)
         except:
@@ -46,12 +53,17 @@ class ASTopo(IPTopo):
         self.addOverlay(new_as)
         return new_as
 
-    def provider_customer_connection(self, provider, customer):
+    def provider_customer_peering(self, provider, customer):
+        """Create a provider customer peering between two ASes.
+
+        :param provider: The provider AS
+        :param customer: The customer AS"""
         self._connect_ases(provider, customer)
         set_community(self, provider, customer.asn, str(provider.asn) + ':1336')
         set_community(self, customer, provider.asn, str(customer.asn) + ':1338')
 
-    def peer_connection(self, as1, as2):
+    def shared_cost_peering(self, as1, as2):
+        """Create a shared-cost peering between two ASes"""
         self._connect_ases(as1, as2)
         set_community(self, as1, as2.asn, str(as1.asn) + ':1337')
         set_community(self, as2, as1.asn, str(as2.asn) + ':1337')
@@ -88,22 +100,22 @@ def ordered(obj):
 
 class NetworkManager:
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, topo, *args, **kwargs):
         self.RIBCommand = '(echo zebra; echo "show bgp"; sleep 1; exit;) | telnet localhost bgpd'
-        self.topo = ASTopo()
+        self.topo = topo
 
-    def add_AS(self, asn, prefixes):
-        return self.topo.add_AS(asn, prefixes)
-
-    def peer_connection(self, as1, as2):
-        self.topo.peer_connection(as1, as2)
-
-    def provider_customer_connection(self, provider, customer):
-        self.topo.provider_customer_connection(provider, customer)
+    def set_topology(self, topo):
+        """Set the topology of the network. Usefull to start another topology
+        with the same NetworkManager"""
+        self.topo = topo
 
     def start_network(self):
+        """Start the virtual network described by the specified topology"""
         try:
             self.topo.build_topo()
+        except:
+            error('Cannot build the topology.')
+        try:
             self.net = IPNet(topo=self.topo, use_v4=False, use_v6=True)
             self.net.start()
         except:
@@ -111,22 +123,28 @@ class NetworkManager:
             error('Cannot start the network.')
 
     def stop_network(self):
+        """Stop the virtual network"""
         self.net.stop()
         cleanup()
 
     def get_converged_ribs_per_as(self):
+        """Wait for the convergence of BGP then get the ribs of all ASes"""
         return self._get_converged(self.get_all_ribs_per_as)
 
     def get_converged_ribs_per_router(self):
+        """Wait for the convergence of BGP then get the ribs of all routers"""
         return self._get_converged(self.get_all_ribs_per_router)
 
     def get_all_ribs_per_router(self):
+        """Get the current ribs of all routers"""
         return self._get_all_ribs(lambda r: r.name)
 
     def get_all_ribs_per_as(self):  
+        """Get the current ribs of all ASes"""
         return self._get_all_ribs(lambda r: 'as'+str(r.asn))
 
     def get_rib(self, node):
+        """Get the RIB of the node. It can either be an AS or a router"""
         if not self.net.is_running:
             error("The network is not running.")
         r = self._get_node(node)

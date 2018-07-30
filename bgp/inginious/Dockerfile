@@ -14,8 +14,7 @@ RUN     chmod -R 755 /scripts && chmod 700 /scripts/INGInious && \
         mv /scripts/* /bin && rm -rf /scripts
 
 # Set the VM and ssh config for communication with that VM
-ADD     vm/debian.vdi /add/debian.vdi
-ADD     vm/ssh /add/ssh
+ADD     vm /add
 RUN     chmod 600 /add/ssh/id_rsa && \
         chmod 644 /add/ssh/id_rsa.pub && \
         chown worker:worker /add/ssh/* && \
