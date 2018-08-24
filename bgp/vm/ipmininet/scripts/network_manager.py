@@ -23,6 +23,8 @@ def error(msg):
 
 
 class EBGPTopo(IPTopo):
+    """This class extends the IPTopo class and build usefull abstraction to create
+    a simple BGP network without iBGP"""
 
     def build_topo(self):
         """Replace the build method"""
