@@ -1,0 +1,3 @@
+[submodule "CTester"]
+	path = c-exos/CTester
+	url = git@github.com:Jimvy/CTester.git
