@@ -28,20 +28,22 @@ def get_multiple_line_answer(problem_id):
 def set_problem_result(problem_id, result, fb):
     """Set the result and the feedback to a problem."""
 
-    feedback.set_problem_result(result, problem)
-    feedback.set_problem_feedback(fb, problem)
+    feedback.set_problem_result(result, problem_id)
+    feedback.set_problem_feedback(fb, problem_id)
 
 def shuffle(list_to_shuffle):
     """Shuffle a list. This method is used instead of the method provided in python
-    so that it matches the shuffle method used in javascript.""""
+    so that it matches the shuffle method used in javascript."""
 
-    n = len(list_to_shuffle)
+    shuffled = [x for x in list_to_shuffle]
+    n = len(shuffled)
     while n > 0:
         index = get_random(n-1, n)
         n = n-1
-        temp = list_to_shuffle[n]
-        list_to_shuffle[n] = list_to_shuffle[index]
-        list_to_shuffle[index] = temp
+        temp = shuffled[n]
+        shuffled[n] = shuffled[index]
+        shuffled[index] = temp
+    return shuffled
 
 def get_random(i=0, upper=1000):
     """Return a random number.

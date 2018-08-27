@@ -11,22 +11,19 @@ nprob = 3
 inc = 100/nprob
 
 # We create the python script based on the text file describing the network
-ases = bgp.parse_bgp_file("public/network", "bgp.py")
+ases, shuffled = bgp.parse_bgp_file("public/network", "bgp.py")
 
 # We execute the script on the virtual machine and retrieve the RIBs of all ASes
 ribs = bgp.get_ribs("bgp.py")
-
-# We shuffle the list of ASes in the same way as it is shuffle by Javascript in
-# the frontend (In order to match the network seen by the student)
-shuffled = [x for x in ases]
-utils.shuffle(shuffled)
 
 # We get the answer of the student
 q1 = utils.get_single_line_answer("q1")
 # The answer retrieved above is based on a shuffled version of the network that
 # was run on the VM. We have to "deshuffle" the answer of the student before
 # comparing it with the RIBs retrieved before
-bgp.derandomize_input(q1, ases, shuffled)
+bgp.deshuffle_answer(q1, ases, shuffled)
+# ases[4] corresponds to AS5, so ribs[ases[4].asn] get the value of the key "as5",
+# which is the RIB of AS5
 if bgp.compare_known_prefixes(q1, ribs[ases[4].asn]):
     utils.set_problem_result("q1", "success", "Correct")
     grade += inc
@@ -34,7 +31,7 @@ else:
     utils.set_problem_result("q1", "failed", "Your answer is not correct")
     
 q2 = utils.get_single_line_answer("q2")
-bgp.derandomize_input(q2, ases, shuffled)
+bgp.deshuffle_answer(q2, ases, shuffled)
 if bgp.compare_best_route(q2, ribs[ases[4].asn], ases[3].prefix):
     utils.set_problem_result("q2", "success", "Correct")
     grade += inc
@@ -42,7 +39,7 @@ else:
     utils.set_problem_result("q2", "failed", "Your answer is not correct") 
     
 q3 = utils.get_multiple_line_answer("q3")
-bgp.derandomize_input(q3, ases, shuffled)
+bgp.deshuffle_answer(q3, ases, shuffled)
 if bgp.compare_all_routes(q3, ribs[ases[4].asn], ases[3].prefix):
     utils.set_problem_result("q3", "success", "Correct")
     grade += inc

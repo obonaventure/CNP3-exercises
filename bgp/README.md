@@ -22,3 +22,4 @@ subfolder, alongside some scripts to easily interact with the VM.
 
 Finally, in the `inginious-task` folder is an example of INGInious task using
 the container built for the project and some utilitary scripts to simplify the work.
+You'll find a proper description of the API in the [README file](inginious-tasks/README.md).

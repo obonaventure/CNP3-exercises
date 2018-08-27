@@ -22,18 +22,21 @@ def parse_bgp_file(filename, fileout):
     file.close()
 
     ases = []
+    doshuffle = False
     bgp_string = "from scripts import *\ntopo = EBGPTopo()\n"
     for line in desc:
         if len(line) == 0:
             continue
         d = line.split(' ')
-        if d[0] == 'AS':
+        if d[0].upper() == 'AS':
             ases.append(AS(d[1], d[2]))
             bgp_string += "{} = topo.add_AS({}, ('{}',))\n".format(d[1], d[1][2:], d[2])
-        elif d[0] == 'SHARED_COST':
+        elif d[0].upper() == 'SHARED_COST':
             bgp_string += "topo.shared_cost_peering({}, {})\n".format(d[1], d[2])
-        elif d[0] == 'PROVIDER_CUSTOMER':
+        elif d[0].upper() == 'PROVIDER_CUSTOMER':
             bgp_string += "topo.provider_customer_peering({}, {})\n".format(d[1], d[2])
+        elif d[0].upper() == "SHUFFLE":
+            doshuffle = True
 
     bgp_string += ("nw = NetworkManager(topo)\n"
                   "nw.start_network()\n"
@@ -42,9 +45,11 @@ def parse_bgp_file(filename, fileout):
     f = open(fileout, 'w')
     f.write(bgp_string)
     f.close()
-    return ases
+    if not doshuffle:
+        return ases, None
+    return ases, shuffle(ases)
 
-def derandomize_input(answer, ordered, shuffled):
+def deshuffle_answer(answer, ordered, shuffled):
     """"This method will match the answer based on a randomized network with
     the network ran in the virtual machine.
     
@@ -53,10 +58,12 @@ def derandomize_input(answer, ordered, shuffled):
                     virtual network
     :param shuffled: The list of the ASes, shuffled in the same way as seen
                      by the student"""
-
+    
+    if shuffled is None:
+        return
     if isinstance(answer[0], list):
         for v in answer:
-            derandomize_input(v, ordered, shuffled)
+            deshuffle_answer(v, ordered, shuffled)
         return
     for i, v in enumerate(answer):
         for j, x in enumerate(shuffled):
@@ -69,8 +76,8 @@ def derandomize_input(answer, ordered, shuffled):
 
 def get_ribs(file):
     """This method takes a python script containing code to create and run a
-    virtual network using ipmininet, and return the ribs of each node of the 
-    network
+    virtual network using ipmininet, and return the RIB of each node of the 
+    network in a dictionnary.
     
     :param file: The python script creating and launching the network"""
 

@@ -17,11 +17,41 @@ function shuffle(list_to_shuffle) {
     }
 }
 
-ases = ["as1", "as2", "as3", "as4", "as5"]
+ases = [{"asn":"as1", "prefix":"1111::/48"}, 
+        {"asn":"as2", "prefix":"2222::/48"}, 
+        {"asn":"as3", "prefix":"3333::/48"}, 
+        {"asn":"as4", "prefix":"4444::/48"}, 
+        {"asn":"as5", "prefix":"5555::/48"}]
 shuffle(ases)
 
-document.getElementById("as1").innerHTML = ases[0];
-document.getElementById("as2").innerHTML = ases[1];
-document.getElementById("as3").innerHTML = ases[2];
-document.getElementById("as4").innerHTML = ases[3];
-document.getElementById("as5").innerHTML = ases[4];
+document.getElementsByName("as1").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[0].asn;
+});
+document.getElementsByName("as2").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[1].asn;
+});
+document.getElementsByName("as3").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[2].asn;
+});
+document.getElementsByName("as4").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[3].asn;
+});
+document.getElementsByName("as5").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[4].asn;
+});
+
+document.getElementsByName("as1_prefix").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[0].prefix;
+});
+document.getElementsByName("as2_prefix").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[1].prefix;
+});
+document.getElementsByName("as3_prefix").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[2].prefix;
+});
+document.getElementsByName("as4_prefix").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[3].prefix;
+});
+document.getElementsByName("as5_prefix").forEach(function(v, i, arr) {
+  arr[i].innerHTML = ases[4].prefix;
+});

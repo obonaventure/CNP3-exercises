@@ -24,6 +24,8 @@ topo.shared_cost_peering(as2, as5)
 nw = NetworkManager(topo)
 nw.start_network()
 
+# Retrieve some information about the network then print it in order to catch 
+# the output in SSH
 print(nw.get_converged_ribs_per_as())
 
 nw.stop_network()

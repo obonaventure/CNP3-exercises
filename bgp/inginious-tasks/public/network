@@ -1,4 +1,5 @@
 BGP
+SHUFFLE
 
 AS as1 1111::/48
 AS as2 2222::/48
