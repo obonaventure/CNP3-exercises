@@ -23,7 +23,7 @@ def parse_bgp_file(filename, fileout):
 
     ases = []
     doshuffle = False
-    bgp_string = "from scripts import *\ntopo = EBGPTopo()\n"
+    bgp_string = "from network_manager import *\ntopo = EBGPTopo()\n"
     for line in desc:
         if len(line) == 0:
             continue
@@ -83,7 +83,7 @@ def get_ribs(file):
 
     vm.upload_file(file)
     f = file[file.rfind('/')+1:]
-    out = vm.execute_file(f)
+    out = vm.execute_command("python {}".format(f))
     if "Error" in out:
         return out
     try:

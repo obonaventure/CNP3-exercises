@@ -1,6 +1,6 @@
 # This is an example script to create and run a simple BGP network
 
-from scripts import *
+from network_manager import *
 
 # EBGTopo is the base class to create a simple eBGP network
 topo = EBGPTopo()

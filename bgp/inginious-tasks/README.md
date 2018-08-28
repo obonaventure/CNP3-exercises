@@ -1,10 +1,12 @@
+# INGInious task
+
 You'll find in this folder some usefull scripts and example in order to create
 an INGInious task on BGP.
 
 The main idea of such task is to simply create a text file describing the network
 on which students will have to answer some questions. This text file will then be
-parsed in a python script to create a,d launch a ipmininet network, which will in
-turn be uploaded and executed on a virtual machine inside the docker container launch
+parsed in a python script to create and launch an ipmininet network, which will in
+turn be uploaded and executed on a virtual machine inside the docker container launched
 by INGInious, thanks to a usefull little API.
 
 The file describing the network is in the `public` subfolder and is described 
@@ -12,18 +14,28 @@ The file describing the network is in the `public` subfolder and is described
 the docker container and in the frontend, by presenting the network to the students 
 thanks to a javascript graphic library. For now, in the `public` folder there is
 only one javascript file alongside the network file, in order to reflect the network 
-with which we have to work.In the future this javascript file is supposed to be 
+with which we have to work. In the future this javascript file is supposed to be 
 replaced by a proper library that will draw the network.
 
-In the `utils` subforlder are two utilitaries files. The [inginious_utils](utils/iniginious_utils.py)
+In the `utils` subfolder are two utilitaries files. The [inginious_utils](utils/iniginious_utils.py)
 file contains methods to ease the utilization of the INGInious API. It is of course
 not mandatory to use it but the methods found in the second file assume a certain
-format of answer, the one given by the method of these scripts. There is a complete
+format of answer, the one given by the methods of this script. There is a complete
 description of the methods provided by the file [here](#inginious_utils).
 The second file in the subdirectory is [bgp_utils](bgp_utils.py). This python file
 contains lots of methods related to BGP, such as a method to parse the network file,
 a method to compare the answer of a student with an actual RIB of an AS, ...
 Again, you'll find a complete description of the methods [here](#bgp_utils).
+
+Then, in the `scripts` subfolder is a python file containing classes and
+methods to ease the use of ipmininet. The parser of the network file produces
+code that uses the methods and classes provided in this folder. The files inside
+the folder should be uploaded to the VM before trying to launch the network.
+We decided to have the file directly in INGInious, and to have to upload it to the
+VM each time, instead of putting it directly in the VM. The reason is simply that
+it allows a better extensibility of the project: no need to rebuild the VM and
+the docker container at each improvement of the scripts or addition of protocols.
+[Here](#network_manager) is a description of the `network_manager.py` file.
 
 The other two files, [bgp.py](bgp.py) and the [run file](run) are example files
 that are described in the sections [bgp.py](#bgp.py) and [run file](#run file)
@@ -32,9 +44,12 @@ Basically, when you submit a task you will have this on the container:
 
 	/
 	├── run - The run file
-	├── bgp.py - The file to create and run the virtual network. Created either
-	|	     by hand or by the method **parse_bgp_file**. It will be uploaded
-	|	     in the VM.
+	├── scripts/
+	|    ├── bgp.py - The file to create and run the virtual network. Created either
+	|    |            by hand or by the method **parse_bgp_file**. It will be uploaded
+	|    |            in the VM.
+	|    └── network_manager.py - File containing lots of useful methods
+	|                             and classes to be used in bgp.py
 	├── public/
 	|    ├── network - The network file. A text file describing the network.
 	|    |		   Can be parsed by the method **parse_bgp_file** to 
@@ -43,7 +58,7 @@ Basically, when you submit a task you will have this on the container:
 	|                             described in the network file. Should be 
 	|			      replaced by a proper library.
 	└── utils/
-         ├── bgp_utils.py - File containing useful methods to work with BGP.
+	     ├── bgp_utils.py - File containing useful methods to work with BGP.
 	     └── inginious_utils.py - File containing useful methods to work
 	                              with INGInious
 
@@ -64,7 +79,7 @@ You can then create peering between ASes by typing either `SHARED_COST as1 as2`
 to be replaced by the corresponding AS names.
 
 You can also specify that you want to shuffle the network by adding a line containing
-"SHUFFLE". This will shuffle the network for the students (and only the students,
+`SHUFFLE`. This will shuffle the network for the students (and only the students,
 therefore the python file created when parsing the network file will be the same
 with or without "SHUFFLE").
 
@@ -129,6 +144,45 @@ of the student contains all the prefixes known by the AS to which the RIB belong
 If no prefixes are known by the AS the answer should be "None".
 *answer* must be a bidimensional list.
 
+
+## network_manager
+
+This file contains classes and methods used to ease the use of ipmininet.
+It is the main file to update if you want to add new fonctionalities to the
+ipmininet network that you will create.
+
+For now it contains two classes: **EBGPTopo**, a class to easily creates network
+topology running BGP (multiple ASes, each with one router running a BGP daemon),
+and **NetworkManager**, a class providing easy to use methods to start, stop
+and interact with the network.
+
+**EBGPTopo** is quite simple, it only contains 3 methods: 
+
+- **add_AS(asn, prefixes)**: A method that adds an AS to the topology, advertising
+the prefixes given in argument
+- **shared_cost_peering(as1, as2)**: A method to peer two ASes following the
+shared cost peering principle.
+- **provider_customer_peering(provider, customer)**: A method to peer two ASes
+following the customer provider principle.
+
+The **NetworkManager** contains a little bit more methods:
+
+- **start_network(self)**: Start the network
+- **stop_network(self)**: Stop the network
+- **set_topology(self, topo)**: Set the topology to use. Useful to run another
+topology after the stopping of the first one.
+- **get_all_ribs_per_router(self)**: Retrieve the RIBs of all routers and return
+a python dictionary parsed this way: {router1_id: {prefix1: {"primary": 
+best_AS_path_list, "secondary": list_of_other_AS_path}, prefix2: "primary":best_AS_path_list,
+"secondary": []}, router2_id: {prefix1: ...}}
+- **get_all_ribs_per_as(self)**: Same as above but instead of router ids in the
+dictionary are the AS name (as1, as2, ...).
+- **get_converged_ribs_per_router(self)**: Same as **get_all_ribs_per_router** but 
+first wait for BGP to converge.
+- **get_converged_ribs_per_as(self)**: Same as **get_all_ribs_per_as** but first
+wait for BGP to converge.
+- **get_rib(self, node)**: Get the RIB of the router given in argument.
+
 ## bgp.py
 
 This file is the file containing the code to create an ipmininet virtual network
@@ -161,22 +215,9 @@ a simple BGP network you can use the class **NetworkManager** provided in the
 `scripts` subfolder. To use it, create an **NetworkManager** object by giving it
 the topology on which it should work, then call the method **start_network(self)** to
 actually start the network. Once started, you can finally work with the network.
-The **NetworkManager** provides some useful methods to retrieve some BGP informations
-parsed in some way. Here is the list of methods you can use:
+You can then interact with the network by using the methods provided by the class.
 
-- **get_all_ribs_per_router(self)**: Retrieve the RIBs of all routers and return
-a python dictionary parsed this way: {router1_id: {prefix1: {"primary": 
-best_AS_path_list, "secondary": list_of_other_AS_path}, prefix2: "primary":best_AS_path_list,
-"secondary": []}, router2_id: {prefix1: ...}}
-- **get_all_ribs_per_as(self)**: Same as above but instead of router ids in the
-dictionary are the AS name (as1, as2, ...).
-- **get_converged_ribs_per_router(self)**: Same as **get_all_ribs_per_router** but 
-first wait for BGP to converge.
-- **get_converged_ribs_per_as(self)**: Same as **get_all_ribs_per_as** but first
-wait for BGP to converge.
-- **get_rib(self, node)**: Get the RIB of the router given in argument.
-
-Once the information retrieved, you should print it on the standard output to 
+Once the information is retrieved, you should print it on the standard output to 
 retrieve it inside the container (as we use SSH to launch the script from the
 container, printing something inside the script will result in SSH catching it).
 
@@ -201,7 +242,11 @@ the list of the ASes of the network, which will be usefull later on to compare
 the answers of the students. This call is of course useless if wrote the python
 script to launch the network yourself.
 
-The second thing to do is to upload the resulting python file to the VM, to
+Now you should upload the files inside the `scripts` subfolder to the VM, before
+trying to upload and launch the network. You can do that by using the 
+**upload_file(file)** method of the python package vm_utils inside the container.
+(`from inginious.vm import vm_utils`)
+The third thing to do is to upload the resulting python file to the VM, to
 launch the virtual network and to retrieve some information about it.
 This can be all done by a single method call: **get_ribs** from *bgp_utils*,
 which will return a dictionary containing all the RIBs, formatted in the format 

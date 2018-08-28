@@ -1,9 +1,5 @@
-import sys
-import os
 import ipaddr
 import time
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../ipmininet'))
 
 import ipmininet
 from ipmininet.ipnet import IPNet

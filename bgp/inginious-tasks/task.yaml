@@ -1,0 +1,68 @@
+accessible: true
+author: Me, mysefl and I
+context: |-
+    .. raw:: html
+
+        Suppose we have the following BGP topology:<br/>
+
+        <span name="as2"></span> ==== <span name="as5"></span> <br/>
+          |<br/>
+          |<br/>
+          |<br/>
+        <span name="as1"></span> ==== <span name="as3"></span> <br/>
+          |<br/>
+          |<br/>
+          |<br/>
+        <span name="as4"></span><br/>
+
+        AS1 advertise 1111::/48, AS2 advertise 2222::/48, ...
+        <script src="1/shuffle_network.js"></script>
+environment: qemu-Debian-bgp
+evaluate: best
+groups: false
+input_random: '5'
+limits:
+    memory: '2048'
+    output: '2'
+    time: '1000'
+name: BGP RIB
+network_grading: false
+problems:
+    q1:
+        header: |-
+            .. raw:: html
+
+                What will be the prefixes known by <span name="as5"></span>?
+                (Format your answer like this: prefix1,prefix2,...)
+                <script src="1/shuffle_network.js"></script>
+        default: ''
+        name: Known prefixes
+        type: code_single_line
+    q2:
+        type: code_single_line
+        header: |-
+            .. raw:: html
+
+                What is the best route <span name="as5"></span> knows to the prefix <span name="as4_prefix"></span>?
+                (Format your answer like this: ASX,ASY,...)
+                <script src="1/shuffle_network.js"></script>
+        default: ''
+        name: Best route
+    q3:
+        type: code
+        default: ''
+        header: |-
+            .. raw:: html
+
+                What are the routes known by <span name="as5"></span> towards the prefix <span name="as4_prefix"></span>?
+                (Write one route per line, formated like this: ASX,ASY,...)
+                <script src="1/shuffle_network.js"></script>
+        name: All Routes
+        language: ''
+regenerate_input_random: 'on'
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+tags: {}
+weight: 1.0

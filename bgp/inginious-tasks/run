@@ -5,16 +5,20 @@ from ast import literal_eval
 from inginious import feedback, rst, input
 from utils import bgp_utils as bgp
 from utils import inginious_utils as utils
+from inginious.vm import vm_utils
 
 grade = 0
 nprob = 3
 inc = 100/nprob
 
 # We create the python script based on the text file describing the network
-ases, shuffled = bgp.parse_bgp_file("public/network", "bgp.py")
+ases, shuffled = bgp.parse_bgp_file("public/network", "scripts/bgp.py")
+
+# Upload the network_manager file, containing useful method for simple bgp networks
+vm_utils.upload_file("scripts/network_manager.py")
 
 # We execute the script on the virtual machine and retrieve the RIBs of all ASes
-ribs = bgp.get_ribs("bgp.py")
+ribs = bgp.get_ribs("scripts/bgp.py")
 
 # We get the answer of the student
 q1 = utils.get_single_line_answer("q1")

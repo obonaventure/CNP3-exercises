@@ -18,8 +18,8 @@ def upload_file(file):
     if r.returncode != 0:
         error("Unable to send the file {} to the VM.".format(file))
 
-def execute_file(file):
-    r = subprocess.run(["/bin/execute-in-vm", "python {}".format(file)], 
+def execute_command(command):
+    r = subprocess.run(["/bin/execute-in-vm", "{}".format(command)], 
                stdout=subprocess.PIPE)
     if r.returncode != 0:
         error("Unable to execute the file " + file)
