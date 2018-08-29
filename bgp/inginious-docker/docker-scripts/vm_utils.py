@@ -14,12 +14,12 @@ def error(msg):
     exit(0)
 
 def upload_file(file):
-    r = subprocess.run(["/bin/upload-to-vm", file], stdout=subprocess.PIPE)
+    r = subprocess.run(["/bin/upload-file", file], stdout=subprocess.PIPE)
     if r.returncode != 0:
         error("Unable to send the file {} to the VM.".format(file))
 
 def execute_command(command):
-    r = subprocess.run(["/bin/execute-in-vm", "{}".format(command)], 
+    r = subprocess.run(["/bin/execute-command", "{}".format(command)], 
                stdout=subprocess.PIPE)
     if r.returncode != 0:
         error("Unable to execute the file " + file)
