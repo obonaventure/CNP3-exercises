@@ -22,8 +22,7 @@ def get_multiple_line_answer(problem_id):
     answer = input.get_input(problem_id).upper()
     if answer == "NONE":
         return answer
-    answer = ''.join(answer.split()) # remove spaces
-    return [a.split(",") for a in answer.split("\n")]
+    return [''.join(a.split()).split(",") for a in answer.split("\n")]
 
 def set_problem_result(problem_id, result, fb):
     """Set the result and the feedback to a problem."""

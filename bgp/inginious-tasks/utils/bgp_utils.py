@@ -129,9 +129,8 @@ def compare_all_routes(answer, rib, prefix):
     if len(answer) != len(routes):
         return False
     for i, r in enumerate(routes):
-        for j, v in enumerate(r):
-            if answer[i][j] != v:
-                return False
+        if r != answer[i]:
+            return False;
     return True
 
 def compare_known_prefixes(answer, rib):
