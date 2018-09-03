@@ -130,7 +130,7 @@ def compare_all_routes(answer, rib, prefix):
         return False
     for i, r in enumerate(routes):
         if r != answer[i]:
-            return False;
+            return False
     return True
 
 def compare_known_prefixes(answer, rib):
