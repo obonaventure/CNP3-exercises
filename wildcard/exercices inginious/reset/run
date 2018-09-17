@@ -1,0 +1,66 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import subprocess, shlex, re, os, math
+from inginious import feedback, input, rst
+
+import gettext
+
+def init_translations():
+    """
+        Move the translations files to student directory
+        Initialize gettext and translate to the proper language
+    """
+    lang = input.get_lang()
+    try:
+        trad = gettext.GNUTranslations(open("../course/common/student/$i18n/" + lang + ".mo", "rb"))
+    except FileNotFoundError:
+        trad = gettext.NullTranslations()
+    trad.install()
+    return lang
+
+def correctQCM(question_id, responses):
+    """
+       Question_id est l'id de la question et responses sont toutes les questions possibles du QRM. 
+       Corrige un qcm à réponses multiples.
+    """
+    ticked = input.get_input(question_id)
+    if len(ticked) != len(responses):
+        feedback.set_problem_result("failed", "flags")
+        feedback.set_problem_feedback(_("You don't have the right number of answer"), "flags")
+        return False
+    for i in responses:
+        if i not in ticked:
+            feedback.set_problem_result("failed", "flags")
+            feedback.set_problem_feedback(_("This is not the good answer"), "flags")
+            return False
+    return True
+        
+
+if __name__ == '__main__':
+    language = init_translations()
+    source_p = int(input.get_input("sourcePort"))
+    destination_p = int(input.get_input("destinationPort"))
+    ack_num = int(input.get_input("acknowledgmentNumber"))
+    s = int(input.get_input("@random")[1]* 10000 + 1000)
+    d = int(input.get_input("@random")[0]* 2000 + 1000)
+    a = int(input.get_input("@random")[2]* 10000 + 1)
+    errors = 0
+    if source_p != s :
+        errors +=1
+        feedback.set_problem_result("failed", "sourcePort")
+    if destination_p != d :
+        errors +=1
+        feedback.set_problem_result("failed", "destinationPort")
+    if ack_num != a :
+        errors +=1
+        feedback.set_problem_result("failed", "acknowledgmentNumber")
+        feedback.set_problem_feedback(_("This is not the good answer"), "acknowledgmentNumber")
+    if not correctQCM("flags", ['1', '3']): 
+        errors +=1
+
+    if errors > 0 :
+        feedback.set_global_result("failed")
+        feedback.set_global_feedback("You have {} errors!".format(errors))
+    else:
+        feedback.set_global_result("success")

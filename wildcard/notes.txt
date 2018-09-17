@@ -1,0 +1,57 @@
+DOC:
+	Faire une tache permutation:
+		Suivre les étapes classique d'une création de tâche.
+		Ensuite, dans l'onglet 'Subproblems', il faut ajouter un nouveau problème du type 'permutation', on donne un nom à la liste et une couleur.
+		On numérote les Text_Id de 0 à n-1.
+		Il existe deux fonctions qui peuvent corriger la permutation:
+		* Soit on veut que la liste soit dans l'ordre de 0 à n-1, on utilise la fonction test_my_list(problem_id, list_name, number_of_elements).
+			Cette fonction va retourner le nombre d'éléments qui n'ont pas été bien placés par l'étudiant et donc 0 si tout est correct.
+		* Soit on veut que la liste ait des sous-listes triées, on va donc utiliser la fonction test_perm_croisee(problem_id, list_name, list_of_lists).
+			Cette fonction prends dans list_of_lists une liste des sous-listes qui doivent être ordonnées. Par exemple,
+			si on donne [[0, 1, 3], [2, 5], [4]], l'étudiant pourra placer l'id 4 à n'importe quel endroit mais le 2 devra d'office être avant le 5 et
+			0 devra être avant 1 qui lui même devra être avant 3.
+			Cette fonction ne retourne que True si l'étudiant a bien répondu et False sinon.
+		Remarque:
+			Un élément d'une tâche de permutation ne peut être que sur une ligne. J'ai fait une PR sur le github permutation que Anthony doit vérifier
+			et qui pourrait régler ce problème (sans certitude).
+	
+	Faire une tache de complétion de packet:
+		* Pour entrer un chiffre:
+			Créer un sous-problème "Single-line code" et ensuite juste regarder si int(input.get_input("question_id")) retourne la valeur voulue.
+		* Pour faire un QRM si par exemple on veut que les étudiants sélectionnent les options du packet.
+			Créer un sous problème "multiple choice", sélectionner "Can select multiple answers" et afficher tous les choix en mettant 0 dans la case correspondante.
+			Si le QCM est la seule question, il n'y a pas besoin de faire de run file car on peut sélectionner les options valides.
+			Si le QCM est combiné avec d'autres questions, l'environnement de correction ne sera spécifique au QCM et il faudra le corriger sois-même.
+				Pour la correction, j'ai fait la fonction correct_qcm(question_id, responses) avec responses qui est un tableau des numéros qui doivent
+				être cochés en string en commençant par '0'. Par exemple si le 2eme et le 5eme éléments doivent être cochés: responses=['1', '4']
+				Cette fonction retourne True si toutes les cases devant être cochées sont cochées et False sinon.
+				Le message d'erreur est soit que le nombre d'éléments cochés n'est pas bon, soit que ce n'est pas la bonne réponse.
+	
+	Pour faire la traduction des taches:
+		Chaque string qui devra être traduite (dans le code) doit être dans le format: _("ma string")
+		Il faut import gettext et puis ajouter et exécuter la fonction init_translations() dans le run file.
+		Cette fonction retourne la langue utilisée.
+		
+	Pour ajouter des nombres random:
+		Dans l'onglet "Basic settings" de l'éditeur de tâche, tout en bas, on indique le nombre d'input aléatoire à ajouter et on ne coche pas la case
+		"regenerate input random" si on veut que le nombre random ne soit généré qu'une fois par étudiant.
+		Si on veut que ce nombre aléatoire apparaisse dans le contexte, il faut que ce dernier soit écrit dans un .. raw:: html et on doit ajouter une balise
+		<span id="rand_ip_1"></span> à l'endroit où on veut que le nombre apparaisse et <script src="Id_of_Task/input_random.js"></script>
+		Et ensuite ajouter le fichier input_random.js dans le fichier "Public" qu'on complétera avec 2 lignes par valeur aléatoire.
+			* La première ligne pour générer le nombre: var a = parseInt(input["@random"][0] * x + y);
+			  x et y deux constantes choisies.
+			* La deuxième ligne pour remplacer la balise dans le html: document.getElementById("rand_ip_1").innerHTML = a.toString();
+			  On peut également passer la base à toString. Ex: a.toString(16); donnera "a" en hexadécimal.
+		On peut également récupérer ce nombre dans le run file avec la commande suivante:
+			a = int(input.get_input("@random")[0] * x + y)
+			  x et y sont les mêmes constantes que dans le fichier input_random.js
+		
+	Pour disséquer un packet avec le dissector:
+		* Capturer un packet grâce à Wireshark.
+		* Dans Wireshark, clic droit sur le header qui nous intéresse et on sélectionne "Copy -> ...as hex stream"
+		* On colle le stream hexadécimal dans cette commande python:
+			base64.encodebytes(bytes.fromhex("hex Stream"))
+		* On peut donner le retour de cette commande au dissector.
+		
+		
+		

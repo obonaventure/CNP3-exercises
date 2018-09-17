@@ -1,0 +1,69 @@
+accessible: true
+author: Luis Tascon Gutierrez
+context: |-
+    .. raw:: html
+
+        You wanted to connect to a server to exchange tcp packets. But infortunatly, the server respond by a reset at your syn packet. Some fieds are missing can you find them? <br>
+        Here is the TCP parameters that you have sent:<br>
+        Source Port: <span id="ipr1"></span> <br>
+        Destination Port: <span id="ipr2"></span> <br>
+        Sequence number: <span id="ipr3"></span> (absolute sequence number)<br>
+        Acknowledgment number: 0<br>
+        Flags: (SYN)<br>
+        Window size: 28800<br>
+        What can you tell about the reset packet that you have received?
+        <script src="reset/input_random.js"></script>
+environment: python3
+evaluate: best
+groups: false
+input_random: '3'
+limits:
+    output: '2'
+    time: '30'
+    memory: '100'
+name: TCP RST
+network_grading: false
+problems:
+    sourcePort:
+        type: code_single_line
+        name: Source port
+        header: What is the source Port ?
+        default: ''
+    destinationPort:
+        type: code_single_line
+        default: ''
+        name: Destination port
+        header: What is the destination port ?
+    acknowledgmentNumber:
+        default: ''
+        type: code_single_line
+        header: |-
+            What is the acknowledgment number ?
+            (-1 if the packet doesn't acknowledge anything)
+        name: Acknowledgment number
+    flags:
+        choices:
+        -   text: URG
+        -   text: ACK
+            valid: true
+        -   text: PSH
+        -   text: RST
+            valid: true
+        -   text: SYN
+        -   text: FIN
+        multiple: true
+        limit: 0
+        name: Flags
+        header: |-
+            .. raw:: html
+
+                What are the flags set by the packet ?<br>
+                You can see the documentation of the flags on <a href="https://tools.ietf.org/html/rfc793#page-16" rel="noopener noreferrer" target="_blank">RFC 793</a>
+        type: multiple_choice
+regenerate_input_random: 'on'
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+tags: {}
+weight: 1.0

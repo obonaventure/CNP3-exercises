@@ -1,0 +1,56 @@
+accessible: true
+author: Luis Tascon Gutierrez
+context: |
+    .. raw:: html
+
+        Replace all the ping packets exchanged in the good order.
+        Test <span id="ipr1"></span>
+        <script src="TestPing/input_random.js"></script>
+environment: default
+evaluate: best
+groups: false
+input_random: '1'
+limits:
+    output: '2'
+    memory: '100'
+    time: '30'
+name: Ping Order 1
+network_grading: false
+problems:
+    Ping:
+        '1':
+            text_id:
+                '0': '0'
+                '3': '3'
+                '4': '4'
+                '2': '2'
+                '1': '1'
+                '5': '5'
+            text:
+                '2': 'IP fc00::1 > fc00::5: ICMP echo request, id 35741, seq 2, length
+                    64'
+                '3': 'IP fc00::5 > fc00::1: ICMP echo response, id 35741, seq 2, length
+                    64'
+                '1': 'IP fc00::2 > fc00::1: ICMP echo response, id 15963, seq 1, length
+                    64'
+                '0': 'IP fc00::1 > fc00::2: ICMP echo request, id 15963, seq 1, length
+                    64'
+                '4': 'IP fc00::1 > fc00::4: ICMP echo request, id 12365, seq 3, length
+                    64'
+                '5': 'IP fc00::4 > fc00::1: ICMP echo response, id 12365, seq 3, length
+                    64'
+            tableColor: '#0078ff'
+            tableName: FIRST
+        name: q1
+        '0':
+            tableColor: '#f9944a'
+            tableName: CANDIDATES
+        header: ''
+        type: permutation
+regenerate_input_random: 'on'
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+tags: {}
+weight: 1.0

@@ -1,0 +1,463 @@
+top:
+  - Header TCP
+Header TCP:
+  - type: Header 
+  - Source Port:
+      length: 16
+  - Destination Port:
+      length: 16
+  - Sequence Number:
+      length: 32
+  - Acknowledgment Number:
+      length: 32
+  - Data Offset:
+      length: 4
+  - Reserved:
+      length: 4
+      values: 0
+  - CWR:
+      length: 1
+  - ECE:
+      length: 1
+  - URG:
+      length: 1
+  - ACK:
+      length: 1
+  - PSH:
+      length: 1
+  - RST:
+      length: 1
+  - SYN:
+      length: 1
+  - FIN:
+      length: 1
+  - Window:
+      length: 16
+  - Checksum:
+      length: 16
+  - Urgent Pointer:
+      length: 16
+  - Options:
+      parse: TCP Option
+  - Data:
+      format: hex
+End of Option List:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 0
+No-Operation:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 1
+  - next: TCP Option
+Maximum Segment Size:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 2
+  - Length:
+      length: 8
+      values: 4
+  - Max Seg Size:
+      length: 16
+  - next: TCP Option
+Window Scale Option:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 3
+  - Length:
+      length: 8
+      values: 3
+  - WSO:
+      length: 8
+  - next: TCP Option
+Timestamps Option:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 8
+  - Length:
+      length: 8
+      values: 10
+  - TS Value:
+      byte_length: 4
+  - TS Echo Reply:
+      byte_length: 4
+  - next: TCP Option
+Sack-Permitted Option:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 4
+  - Length:
+      length: 8
+      values: 2
+  - next: TCP Option
+Sack Option Format:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 5
+  - Length:
+      length: 8
+      values: [2, 10, 18, 26, 34, 42]
+      triggers:
+        - Blocks:
+            byte_length:
+              10: 8
+              18: 16
+              26: 24
+              34: 32
+              42: 40
+  - Blocks:
+      conditions:
+        - Length:
+            neq: 2
+      byte_length: 8
+      parse: Block
+  - next: TCP Option
+Block:
+  - Left:
+      byte_length: 4
+  - Right:
+      byte_length: 4
+  - next: Block
+Fast Open Option:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 34
+  - Length:
+      length: 8
+      values: [2, 6, 8, 10, 12, 14, 16, 18]
+      triggers:
+        - Cookie:
+            byte_length:
+              6: 4
+              8: 6
+              10: 8
+              12: 10
+              14: 12
+              16: 14
+              18: 16
+  - Cookie:
+      conditions:
+        - Length:
+            neq: 2
+      byte_length: 4
+  - next: TCP Option
+MPTCP MP_CAPABLE:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x0
+  - A:
+      length: 1
+  - B:
+      length: 1
+      values: 0
+  - C:
+      length: 1
+  - D:
+      length: 1
+  - E:
+      length: 1
+  - F:
+      length: 1
+  - G:
+      length: 1
+  - H:
+      length: 1
+  - Sender Key:
+      length: 64
+  - Receiver Key:
+      conditions:
+        - Length: 
+            eq: 20
+      length: 64
+  - next: TCP Option
+MPTCP MP_JOIN First_packet:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: 12
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x1
+  - Reserved:
+      length: 3
+      values: 0
+  - B:
+      length: 1
+  - Address ID:
+      length: 8
+  - Receiver Token:
+      length: 32
+  - Sender Random Number:
+      length: 32
+  - next: TCP Option
+MPTCP MP_JOIN Second_packet:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: 16
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x1
+  - Reserved:
+      length: 3
+      values: 0
+  - B:
+      length: 1
+  - Address ID:
+      length: 8
+  - Sender HMAC:
+      length: 64
+  - Sender Random Number:
+      length: 32
+  - next: TCP Option
+MPTCP MP_JOIN Third_packet:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: 24
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x1
+  - Reserved:
+      length: 12
+      values: 0
+  - Sender HMAC:
+      length: 160
+  - next: TCP Option
+MPTCP DSS:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: [4, 8, 12, 16, 20, 24, 28]
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x2
+  - Reserved:
+      length: 7
+      values: 0
+  - F:
+      length: 1
+  - m:
+      length: 1
+      triggers:
+        - Data Sequence Number:
+            length:
+              0: 32
+              1: 64
+  - M:
+      length: 1
+  - a:
+      length: 1
+      triggers:
+        - Data ACK:
+            length:
+              0: 4
+              1: 8
+  - A:
+  - Data ACK:
+      conditions:
+        - A:
+            eq: 1
+      byte_length: [4, 8]
+  - Data Sequence Number:
+      byte_length: [4, 8]
+      conditions:
+        - M:
+            eq: 1
+  - Subflow Sequence Number:
+      byte_length: 4
+      conditions:
+        - M:
+            eq: 1
+  - Data-Level Length:
+      byte_length: 2
+      conditions:
+        - M:
+            eq: 1
+  - Checksum:
+      byte_length: 2
+      conditions:
+        - M:
+            eq: 1
+  - next: TCP Option
+MPTCP MP_PRIO:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: [3, 4]
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x5
+  - Reserved:
+      length: 3
+      values: 0
+  - B:
+      length: 1
+  - AddrID:
+      length: 8
+      conditions:
+        - Length:
+            eq: 4
+  - next: TCP Option
+MPTCP ADD_ADDR:
+  - type: Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: [8, 10, 20, 22]
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x3
+  - IPVer:
+      length: 4
+      values: [4, 6]
+      triggers:
+        - Address:
+            byte_length:
+              4: 4
+              6: 16
+  - Address ID:
+      length: 8
+  - Address:
+      byte_length: [4, 16]
+  - Port:
+      conditions:
+        - Length:
+            eq: [10, 22]
+      byte_length: 2
+  - next: TCP Option
+MPTCP REMOVE_ADDR:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      triggers:
+        - Address:
+            length:
+              4: 1
+              5: 2
+              6: 3
+              7: 4
+              8: 5
+              9: 6
+              10: 7
+              11: 8
+              12: 9
+              13: 10
+              14: 11
+              15: 12
+              16: 13
+              17: 14
+              18: 15
+              19: 16
+              20: 17
+              21: 18
+              22: 19
+              23: 20
+              24: 21
+              25: 22
+              26: 23
+              27: 24
+              28: 25
+              29: 26
+              30: 27
+              31: 28
+              32: 29
+              33: 30
+              34: 31
+              35: 32
+              36: 33
+              37: 34
+              38: 35
+              39: 36
+              40: 37
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x4
+  - Reserved:
+      length: 4
+  - Address:
+      conditions:
+        - Length:
+            neq: 3
+      parse: MPTCP Address ID
+  - next: TCP Option
+MPTCP Address ID:
+  - ID:
+      length: 8
+  - next: MPTCP Address ID
+MPTCP MP_FASTCLOSE:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: 12
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x7
+  - Reserved:
+      length: 12
+  - Option Receiver Key:
+      length: 64
+  - next: TCP Option
+MPTCP MP_FAIL:
+  - type: TCP Option
+  - Kind:
+      length: 8
+      values: 30
+  - Length:
+      length: 8
+      values: 12
+  - SubType:
+      length: 4
+      format: hex
+      values: 0x6
+  - Reserved:
+      length: 12
+  - Data Sequence Number:
+      length: 64
+  - next: TCP Option

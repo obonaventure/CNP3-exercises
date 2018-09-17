@@ -1,0 +1,278 @@
+top:
+  - Header ICMPv6 Destination Unreachable
+  - Header ICMPv6 Packet Too Big
+  - Header ICMPv6 Time Exceeded
+  - Header ICMPv6 Echo Request
+  - Header ICMPv6 Echo Reply
+  - Header ICMPv6 Router Solicitation
+  - Header ICMPv6 Router Advertisement
+  - Header ICMPv6 Neighbor Solicitation
+  - Header ICMPv6 Neighbor Advertisement
+  - Header ICMPv6 Redirect
+Header ICMPv6 Destination Unreachable:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 1
+  - Code:
+      length: 8
+      values: [0, 1, 2, 3, 4, 5, 6]
+  - Checksum:
+      length: 16
+  - Unused:
+      length: 32
+  - Info packet:
+      length: '*'
+      format: hex
+Header ICMPv6 Packet Too Big:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 2
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - MTU:
+      length: 32
+  - Info packet:
+      length: '*'
+      format: hex
+Header ICMPv6 Time Exceeded:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 3
+  - Code:
+      length: 8
+      values: [0, 1]
+  - Checksum:
+      length: 16
+  - Unused:
+      length: 32
+  - Info packet:
+      length: '*'
+      format: hex
+Header ICMPv6 Echo Request:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 128
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Identifier:
+      length: 16
+  - Sequence Number:
+      length: 16
+  - Info packet:
+      length: '*'
+      format: hex
+Header ICMPv6 Echo Reply:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 129
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Identifier:
+      length: 16
+  - Sequence Number:
+      length: 16
+  - Info packet:
+      length: '*'
+      format: hex
+Header ICMPv6 Router Solicitation:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 133
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Reserved:
+      length: 32
+  - Option:
+      parse: Source Link-Layer Address
+Header ICMPv6 Router Advertisement:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 134
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Cur Hop Limit:
+      length: 8
+  - M:
+      length: 1
+  - O:
+      length: 1
+  - Reserved:
+      length: 6
+  - Router Lifetime:
+      length: 16
+  - Reachable Time:
+      length: 32
+  - Retrans Timer:
+      length: 32
+  - Option:
+      parse: ICMPv6 Option SMP
+Header ICMPv6 Neighbor Solicitation:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 135
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Reserved:
+      length: 32
+  - Target Address:
+      length: 128
+  - Option:
+      parse: Source Link-Layer Address
+Header ICMPv6 Neighbor Advertisement:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 136
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - R:
+      length: 1
+  - S:
+      length: 1
+  - O:
+      length: 1
+  - Reserved1:
+      length: 5
+  - Reserved2:
+      length: 24
+  - Target Address:
+      length: 128
+  - Option:
+      parse: Target Link-Layer Address
+Header ICMPv6 Redirect:
+  - type: [Header, Header ICMPv6]
+  - Type: 
+      length: 8
+      values: 136
+  - Code:
+      length: 8
+      values: 0
+  - Checksum:
+      length: 16
+  - Reserved:
+      length: 32
+  - Target Address:
+      length: 128
+  - Destination Address:
+      length: 128
+  - next: ICMPv6 Option TR
+Source Link-Layer Address:
+  - type: [ICMPv6 Option, ICMPv6 Option SMP]
+  - Type:
+      length: 8
+      values: 1
+  - Length:
+      length: 8
+      triggers:
+        - Link-Layer Address:
+            byte_length:
+              1: 6
+              2: 14
+              3: 22
+              4: 30
+              5: 38
+              6: 46
+  - Link-Layer Address:
+      conditions:
+        - Length:
+            neq: 0
+Target Link-Layer Address:
+  - type: [ICMPv6 Option, ICMPv6 Option TR]
+  - Type:
+      length: 8
+      values: 2
+  - Length:
+      length: 8
+      triggers:
+        - Link-Layer Address:
+            byte_length:
+              1: 6
+              2: 14
+              3: 22
+              4: 30
+              5: 38
+              6: 46
+  - Link-Layer Address:
+      conditions:
+        - Length:
+            neq: 0
+Prefix Information:
+  - type: [ICMPv6 Option, ICMPv6 Option SMP]
+  - Type:
+      length: 8
+      values: 3
+  - Length:
+      length: 8
+      values: 4
+  - Prefix Length:
+      length: 8
+  - L:
+      length: 1
+  - A:
+      length: 1
+  - Reserved1:
+      length: 6
+      values: 0
+  - Valid Lifetime:
+      length: 32
+  - Preferred Lifetime:
+      length: 32
+  - Reserved2:
+      length: 32
+      values: 0
+  - Prefix:
+      length: 128
+Redirected Header:
+  - type: [ICMPv6 Option, ICMPv6 Option TR]
+  - Type:
+      length: 8
+      values: 4
+  - Length:
+      length: 8
+  - Reserved:
+      length: 48
+      values: 0
+  - IP Header and Data:
+      format: hex
+MTU:
+  - type: [ICMPv6 Option, ICMPv6 Option SMP]
+  - Type:
+      length: 8
+      values: 5
+  - Length:
+      length: 8
+      values: 1
+  - Reserved:
+      length: 16
+      values: 0
+  - MTU:
+      length: 32

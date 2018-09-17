@@ -1,0 +1,48 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import subprocess, shlex, re, os, math
+from inginious import feedback, input, rst
+
+a = int(input.get_input("@random")[0] * 5000 + 10000)
+
+#not used here anymore but still interesting
+def test_my_list(problem_id, list_name, number_of_elements):
+    """return the number of error(s) of the student!
+       The id's are from 0 to number_of_elements not included."""
+    errors = 0
+    for i in range(number_of_elements):
+        if input.get_input("{}-{}-pos".format(problem_id, i)) != "{}#{}".format(list_name, i):
+            errors += 1
+    return errors
+
+def is_elem_in_order(problem_id, list_name, elem):
+    last = -1
+    for i in elem:
+        actual = int(input.get_input("{}-{}-pos".format(problem_id, i)).split('#')[-1])
+        if actual < last:
+            return False
+        last = actual
+    return True
+
+def test_perm_croisee(problem_id, list_name, list_of_lists):
+    """return True if all the groups are individually well sorted.
+       In list_of_lists you have to enter all the lists that compose a group.
+       Each group must be sorted like the student has to sort it."""
+    for elem in list_of_lists:
+        if not is_elem_in_order(problem_id, list_name, elem):
+            return False
+    return True
+
+if __name__ == '__main__':
+    if test_perm_croisee("Ping", "FIRST", [[0, 1], [2, 3], [4, 5]]):
+        feedback.set_global_result("success")
+    else:
+        feedback.set_global_result("failed")
+'''if __name__ == \'__main__\':
+    errors = test_my_list("Ping", "FIRST", 6)
+    if errors > 0 :
+        feedback.set_global_result("failed")
+        feedback.set_global_feedback("This is not the good order. You have {} errors!".format(errors))
+    else:
+        feedback.set_global_result("success")'''

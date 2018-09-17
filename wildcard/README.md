@@ -1,0 +1,5 @@
+- exercices inginious est le dossier qui contient les exercices que j'ai fait sur le cours beta d'inginious.
+- notes.txt contient les notes que j'ai prises en juillet et septembre.
+- fonctions.py contient les fonctions que j'ai faites en plus pour les corrections (j'en parles dans notes.txt mais elles sont également présentes dans le dossiers des exercices).
+- .yaml contiennent les fichiers qui servent au dissector.
+- dissector-quic-test.py qui contient ma version modifiée du dissector-quic-test.

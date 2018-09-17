@@ -1,0 +1,14 @@
+top:
+  - Header UDP
+Header UDP:
+  - type: Header
+  - Source Port:
+      length: 16
+  - Destination Port:
+      length: 16
+  - Length:
+      length: 16
+  - Checksum:
+      length: 16
+  - Data:
+      format: hex
